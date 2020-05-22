@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>VFS - Bryan's Blog</title>
+  <title>Mkdocs日志 - Bryan's Blog</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "VFS";
-    var mkdocs_page_input_path = "2020-05-23-vfs.md";
+    var mkdocs_page_name = "Mkdocs\u65e5\u5fd7";
+    var mkdocs_page_input_path = "2020-05-23-mkdocs.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -52,12 +52,24 @@
                     </li>
                 </ul>
                 <p class="caption"><span class="caption-text">Linux kernel</span></p>
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">VFS</a>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../2020-05-23-vfs/">VFS</a>
                     </li>
                 </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../2020-05-23-mkdocs/">Mkdocs日志</a>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Mkdocs日志</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#mkdocs_1">mkdocs相关命令</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#commands">Commands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-layout">Project layout</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_1">相关问题记录：</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_2">帮助文档链接</a>
+    </li>
+    </ul>
                     </li>
                 </ul>
                 <ul>
@@ -84,12 +96,8 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
-        
-          <li>Linux kernel &raquo;</li>
-        
-      
     
-    <li>VFS</li>
+    <li>Mkdocs日志</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -100,7 +108,34 @@
           <div role="main">
             <div class="section">
               
-                <p>this is a test page</p>
+                <h1 id="mkdocs">记录使用mkdocs的过程</h1>
+<h2 id="mkdocs_1">mkdocs相关命令</h2>
+<p>For full documentation visit <a href="https://www.mkdocs.org">mkdocs.org</a>.</p>
+<h2 id="commands">Commands</h2>
+<ul>
+<li><code>mkdocs new [dir-name]</code> - Create a new project.</li>
+<li><code>mkdocs serve</code> - Start the live-reloading docs server.</li>
+<li><code>mkdocs build</code> - Build the documentation site.</li>
+<li><code>mkdocs -h</code> - Print help message and exit.</li>
+</ul>
+<h2 id="project-layout">Project layout</h2>
+<pre><code>mkdocs.yml    # The configuration file.
+docs/
+    index.md  # The documentation homepage.
+    ...       # Other markdown pages, images and other files.
+</code></pre>
+<h2 id="_1">相关问题记录：</h2>
+<ul>
+<li>按照 [https://www.mkdocs.org/?#mkdocs] 文档中的添加第二个页面的方法，使用curl下载about.md文档后，点击about图标，会出现如下错误页面：</li>
+</ul>
+<p><img alt="1590166002806" src="../img/1590166002806.png" /></p>
+<p>原因猜测是因为about.md中包含了html的相关语法，如下：</p>
+<p><img alt="1590166108072" src="../img/1590166108072.png" /></p>
+<p>将about.md中的内容全部删除，修改成为“This is a test page”之后，页面就加载出来了。</p>
+<p><img alt="1590166232244" src="../img/1590166232244.png" /></p>
+<h2 id="_2">帮助文档链接</h2>
+<p>更多帮助文档可以参考 [https://www.mkdocs.org/?#mkdocs]
+中文文档可以参考 [https://markdown-docs-zh.readthedocs.io/zh_CN/latest/],但是这个文档有点旧，最典型的比如mkdocs.yml文档中配置多个页面的帮助，其实是使用nav，但是文档中还是使用page，这个坑是我踩过之后重新上网查找才发现的</p>
               
             </div>
           </div>
@@ -108,10 +143,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../2020-05-23-mkdocs/" class="btn btn-neutral float-right" title="Mkdocs日志">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../about/" class="btn btn-neutral float-right" title="关于">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../2020-05-23-vfs/" class="btn btn-neutral" title="VFS"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -137,10 +172,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../2020-05-23-vfs/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../2020-05-23-mkdocs/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../about/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
