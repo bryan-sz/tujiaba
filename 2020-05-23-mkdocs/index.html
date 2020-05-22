@@ -66,6 +66,12 @@
     <li class="toctree-l2"><a class="reference internal" href="#project-layout">Project layout</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#_1">相关问题记录：</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#aboutmd">添加第二个about.md页面失败</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#md">md中插入图片后页面无法显示</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#_2">帮助文档链接</a>
     </li>
@@ -125,14 +131,15 @@ docs/
     ...       # Other markdown pages, images and other files.
 </code></pre>
 <h2 id="_1">相关问题记录：</h2>
-<ul>
-<li>按照 [https://www.mkdocs.org/?#mkdocs] 文档中的添加第二个页面的方法，使用curl下载about.md文档后，点击about图标，会出现如下错误页面：</li>
-</ul>
+<h3 id="aboutmd">添加第二个about.md页面失败</h3>
+<p>​   按照 [https://www.mkdocs.org/?#mkdocs] 文档中的添加第二个页面的方法，使用curl下载about.md文档后，点击about图标，会出现如下错误页面：</p>
 <p><img alt="1590166002806" src="../img/1590166002806.png" /></p>
 <p>原因猜测是因为about.md中包含了html的相关语法，如下：</p>
 <p><img alt="1590166108072" src="../img/1590166108072.png" /></p>
 <p>将about.md中的内容全部删除，修改成为“This is a test page”之后，页面就加载出来了。</p>
 <p><img alt="1590166232244" src="../img/1590166232244.png" /></p>
+<h3 id="md">md中插入图片后页面无法显示</h3>
+<p>​   在md中插入图片，md本地编辑器typora显示无问题，但是mkdocs无法显示，原因是直接在typora中插入截图，引用的是本机C盘的临时目录，在mkdocs中无法显示，参考帮助文档：[https://markdown-docs-zh.readthedocs.io/zh_CN/latest/user-guide/writing-your-docs/#_5]</p>
 <h2 id="_2">帮助文档链接</h2>
 <p>更多帮助文档可以参考 [https://www.mkdocs.org/?#mkdocs]
 中文文档可以参考 [https://markdown-docs-zh.readthedocs.io/zh_CN/latest/],但是这个文档有点旧，最典型的比如mkdocs.yml文档中配置多个页面的帮助，其实是使用nav，但是文档中还是使用page，这个坑是我踩过之后重新上网查找才发现的</p>
