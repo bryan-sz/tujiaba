@@ -55,6 +55,14 @@
                 <ul class="current">
                     <li class="toctree-l1 current"><a class="reference internal current" href="./">VFS</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#_1">引言</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_2">文件系统总体框架</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_3">相关文档</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#_4">相关数据结构</a>
+    </li>
     </ul>
                     </li>
                 </ul>
@@ -108,6 +116,147 @@
               
                 <h1 id="linux-kernelvfs">Linux kernel的VFS模块</h1>
 <p>计划写一个专题，专门记录linux kernel中VFS相关知识和学习点</p>
+<h2 id="_1">引言</h2>
+<p>Linux中的一个很重要的模块，就是文件系统。而Linux应用场景广阔，从大量的嵌入式使用的NAND Flash、Norflash到服务器使用的磁盘等不同介质，所对应的不同的文件系统，如YAFFS、JFFS2、EXT2/3/4等众多的文件系统。不同的硬件介质，拥有不同的硬件属性和控制方法以及文件组织存储方式，那么对应的文件系统必然也是不同的，而上层应用程序使用的是标准的open、read、write、close等系统调用，这么多的文件系统是如何组织起来，对上层应用程序呈现出来一致性的呢？ 这个问题，可以从下面两个方面考虑：</p>
+<ul>
+<li>对于Linux来说，一切皆文件。</li>
+<li>从软件工程和软件哲学来考虑，没有什么问题是加一层解决不了。</li>
+</ul>
+<p>对于Linux来说，一切皆文件。
+对于Linux来说，一切皆文件。对于上层应用程序所看到的，也只是操作文件。所使用的的都是标准的系统调用，底层的所有文件系统的细节对其来说都是黑盒。事实上，上层应用程序既不愿意也没有能力看到下层文件系统或者硬件的差异。想象一下：世界上这么多的手机厂商，如果一个上层APP要适配所有的存储器件和构筑在其上的文件系统，那绝对是一个天量的工作量、并且也是质量和软件工程管理的灾难。所以，在Linux上，这些APP不需要看到底层差异，只需要看到自己操作的文件，这一点就够了，剩下的就交给Linux内核吧，他会搞定这个问题的。</p>
+<p>从软件工程和软件哲学来考虑，没有什么问题是加一层解决不了。
+上面说到上层APP搞不定的事情，Linux内核是怎么搞定的呢。这就是著名的软件哲学：没有什么问题是加一层解决不了的。如果有，那就再加一层。^_^</p>
+<p>Linux内核加的这一层就是VFS。VFS（Virtual File Ssystem）从名字上就可以看出来，就是一个虚拟的，并不是一个真实的文件系统。对上，屏蔽所有的底层差异，提供统一的系统调用接口，呈现一致性；对下，提供一套标准框架和注册接口，让各种文件系统根据框架和标准进行实现，并让各种文件系统注册各种操作函数，实现真正的文件系统操作。总而言之，VFS就是夹在各种实现细节和标准化界面之间的夹心层，真正做到了吃的是草，挤出来的是奶。</p>
+<h2 id="_2">文件系统总体框架</h2>
+<p>如上介绍，VFS就是夹在上层应用程序和下层不同文件系统中的夹心层，整体简单框架如下图：</p>
+<p><img alt="20190419143025694" src="../img/20190419143025694.png" /></p>
+<h2 id="_3">相关文档</h2>
+<p>最权威的就是Kernel自带的文档啦。在Documentation/filesystems目录下，就有vfs.txt帮助文档。对VFS的介绍如下：</p>
+<pre><code>Introduction
+============
+
+The Virtual File System (also known as the Virtual Filesystem Switch) is the software layer in the kernel that provides the filesystem interface to userspace programs. It also provides an abstraction within the kernel which allows different filesystem implementations to coexist.
+VFS system calls open(2), stat(2), read(2), write(2), chmod(2) and so on are called from a process context. Filesystem locking is described in the document Documentation/filesystems/Locking. 
+</code></pre>
+
+<h2 id="_4">相关数据结构</h2>
+<ul>
+<li>struct file_system_type</li>
+</ul>
+<p>结构体定义在include/linux/fs.h头文件中，详细定义：</p>
+<pre><code>  struct file_system_type {
+    const char *name;           ----- 文件系统名字
+    int fs_flags;               ----- TODO:标志位、暂时不知道干啥的，后续补上
+  #define FS_REQUIRES_DEV       1 
+  #define FS_BINARY_MOUNTDATA   2
+  #define FS_HAS_SUBTYPE        4
+  #define FS_USERNS_MOUNT       8   /* Can be mounted by userns root */
+  #define FS_DISALLOW_NOTIFY_PERM   16  /* Disable fanotify permission events */
+  #define FS_RENAME_DOES_D_MOVE 32768   /* FS will handle d_move() during rename() internally. */
+    int (*init_fs_context)(struct fs_context *);
+    const struct fs_parameter_spec *parameters;
+    struct dentry *(*mount) (struct file_system_type *, int,
+               const char *, void *);   ----- 具体文件系统的挂载函数钩子
+    void (*kill_sb) (struct super_block *);  ---- TODO：应该是卸载函数钩子？
+    struct module *owner;
+    struct file_system_type * next;    ----单链表，管理所有的文件系统
+    struct hlist_head fs_supers;       ----TODO:不知道干啥的
+
+    struct lock_class_key s_lock_key;   ---- TODO: 这一坨也不知道干啥的
+    struct lock_class_key s_umount_key;
+    struct lock_class_key s_vfs_rename_key;
+    struct lock_class_key s_writers_key[SB_FREEZE_LEVELS];
+
+    struct lock_class_key i_lock_key;
+    struct lock_class_key i_mutex_key;
+    struct lock_class_key i_mutex_dir_key;
+  };
+</code></pre>
+
+<p>Linux提供了/proc/filesystems接口，用于查看系统中已经注册的所有类型的文件系统。在我的CentOS虚拟机上，可以看到注册了如下的文件系统:</p>
+<p><img alt="1590246226459" src="../img/1590246226459.png" />
+有了file_system_type结构体的定义，我们就可以来看看一个文件系统类型是怎么添加到内核中的。</p>
+<ul>
+<li>int register_filesystem(struct file_system_type * fs)</li>
+</ul>
+<pre><code>/**
+ *  register_filesystem - register a new filesystem
+ *  @fs: the file system structure
+ *
+ *  Adds the file system passed to the list of file systems the kernel
+ *  is aware of for mount and other syscalls. Returns 0 on success,
+ *  or a negative errno code on an error.
+ *
+ *  The &amp;struct file_system_type that is passed is linked into the kernel 
+ *  structures and must not be freed until the file system has been
+ *  unregistered.
+ */
+
+int register_filesystem(struct file_system_type * fs)
+{
+    int res = 0;
+    struct file_system_type ** p;
+
+    BUG_ON(strchr(fs-&gt;name, '.'));
+    if (fs-&gt;next)
+        return -EBUSY;
+    write_lock(&amp;file_systems_lock);
+    p = find_filesystem(fs-&gt;name, strlen(fs-&gt;name));
+    if (*p)
+        res = -EBUSY;
+    else
+        *p = fs;
+    write_unlock(&amp;file_systems_lock);
+    return res;
+}
+
+EXPORT_SYMBOL(register_filesystem);
+</code></pre>
+
+<p>函数定义在fs/filesystem.c文件中，代码很简单, 比如我们定义了一个名字叫bryan的文件系统类型，首先对入参的文件系统类型进行合法性校验，然后查找系统中bryan这个名字的文件系统类型是否已经注册，如果已经注册过了，就不需要也不可能再注册了，直接返回-EBUSY，反之将bryan这个文件系统类型添加到文件系统链表上，这个文件系统类型就成功了。</p>
+<ul>
+<li>int unregister_filesystem(struct file_system_type * fs)</li>
+</ul>
+<pre><code>/**
+ *  unregister_filesystem - unregister a file system
+ *  @fs: filesystem to unregister
+ *
+ *  Remove a file system that was previously successfully registered
+ *  with the kernel. An error is returned if the file system is not found.
+ *  Zero is returned on a success.
+ *  
+ *  Once this function has returned the &amp;struct file_system_type structure
+ *  may be freed or reused.
+ */
+
+int unregister_filesystem(struct file_system_type * fs)
+{
+    struct file_system_type ** tmp;
+
+    write_lock(&amp;file_systems_lock);
+    tmp = &amp;file_systems;
+    while (*tmp) {
+        if (fs == *tmp) {
+            *tmp = fs-&gt;next;
+            fs-&gt;next = NULL;
+            write_unlock(&amp;file_systems_lock);
+            synchronize_rcu();
+            return 0;
+        }
+        tmp = &amp;(*tmp)-&gt;next;
+    }
+    write_unlock(&amp;file_systems_lock);
+
+    return -EINVAL;
+}
+
+EXPORT_SYMBOL(unregister_filesystem);
+</code></pre>
+
+<p>与register_filesystem相对应，就是将对应的文件系统类型从已经注册的列表中删除，内核无法再查找到这个文件系统类型，就自然的从内核中卸载了。</p>
+<ul>
+<li>struct file_operations</li>
+</ul>
               
             </div>
           </div>
