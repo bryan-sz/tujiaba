@@ -254,6 +254,42 @@ EXPORT_SYMBOL(unregister_filesystem);
 </code></pre>
 
 <p>与register_filesystem相对应，就是将对应的文件系统类型从已经注册的列表中删除，内核无法再查找到这个文件系统类型，就自然的从内核中卸载了。</p>
+<p>从上述的两个函数来看，还有如下几个点可以关注一下：</p>
+<ul>
+<li>find_filesystem函数</li>
+</ul>
+<pre><code>static struct file_system_type **find_filesystem(const char *name, unsigned len)
+{
+    struct file_system_type **p;
+    for (p = &amp;file_systems; *p; p = &amp;(*p)-&gt;next)
+        if (strncmp((*p)-&gt;name, name, len) == 0 &amp;&amp;
+            !(*p)-&gt;name[len])
+            break;
+    return p;
+}
+</code></pre>
+
+<p>这个函数就是遍历系统中的已经注册的文件系统类型，根据文件系统类型名字来做判断，确定是否已经注册。这个函数也定义在fs/filesystems.c文件中；</p>
+<ul>
+<li>file_systems变量</li>
+</ul>
+<pre><code>static struct file_system_type *file_systems;
+</code></pre>
+
+<p>这是一个全局static指针变量，指向的就是注册到系统中的第一个file_system_type对象，然后每个。其实上面的register_filesystem和unregister_filesystem函数，都是针对这个file_systems指向的链表进行操作的。register_filesystem就是将对象添加到链表中，unregister_filesystem就是将对象从链表中摘除。</p>
+<ul>
+<li>register_filesystem和unregister_filesystem的思考
+  虽然上面说的注册和解注册过程很简单，但是还是有一些事情值得注意和思考：</li>
+</ul>
+<p>1)  file_systems_lock这把锁是读写锁，就是只有注册和解注册的时候去写链表，其余的场景都是读，所以可以使用读写锁尽量提高系统响应。定义如下：</p>
+<pre><code>static DEFINE_RWLOCK(file_systems_lock);
+</code></pre>
+
+<p>2)  register_filesystem时使用了find_filesystem查找系统中已经注册的文件系统类型，但unregister_filesystem时并没有使用find_filesystem去查找已经注册的文件系统类型，而是直接遍历。应该可以使用find_filesystem改写。更深层次，因为注册的时候使用的是name作为判断文件系统类型的唯一性，那么在解注册的时候使用find_filesystem去查找是否已经注册也是唯一的，逻辑上不会有问题。但是要考虑注册是在链表结尾添加对象，而解注册有可能在链表中部，使用find_filesystem函数逻辑会更复杂。</p>
+<p>3)  在注册的时候会判断next指针是否为空，如果不为空的话会返回失败，这里的考虑很重要：防止了注册一个文件系统类型的时候在链表中加入随意不确定性，即不确定next指向的内存块。系统中注册的所有文件系统类型都是靠这个链表来维护，所以next绝对不可以出问题；所以解注册之后，也会将next指针赋值为NULL；</p>
+<p>4)  unregister_filesystem之后会调用synchronize_rcu，这个rcu同步在这个地方显得非常突兀，具体是什么作用呢？ 还是查看源码提交记录。最开始的提交是Nick Piggin在11年在31e6b01f4183ff419a6d1f86177cbf4662347cec这个commiter中添加的，然后在11年由Milton Milller在fff3e5ade4455a4b42a19c95dd7a167a3cb7956a这个提交中将synchronize_rcu从循环外添加到循环中。具体的原因如下可以查看这两个commit的注释，简而言之如下：
+31e6b01f4183ff419a6d1f86177cbf4662347cec: 在解注册的时候仍可继续访问d_ops和i_ops；
+fff3e5ade4455a4b42a19c95dd7a167a3cb7956a: 在循环外不安全，将其添加到循环内部。这个点还不懂，给自己留个作业吧^_^</p>
 <ul>
 <li>struct file_operations</li>
 </ul>
