@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>科普思考 - Bryan's Blog</title>
+  <title>mount之旅 - Bryan's Blog</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "\u79d1\u666e\u601d\u8003";
-    var mkdocs_page_input_path = "link.md";
+    var mkdocs_page_name = "mount\u4e4b\u65c5";
+    var mkdocs_page_input_path = "2020-05-25-mount.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -52,24 +52,24 @@
                     </li>
                 </ul>
                 <p class="caption"><span class="caption-text">Linux kernel</span></p>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="#">VFS</a>
-    <ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="#">VFS</a>
+    <ul class="current">
                 <li class="toctree-l2"><a class="reference internal" href="../2020-05-23-vfs/">总体框架</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../2020-05-25-mount/">mount之旅</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">mount之旅</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#mount_1">mount命令</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mount_2">mount系统调用</a>
+    </li>
+    </ul>
                 </li>
     </ul>
                     </li>
                 </ul>
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">科普思考</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#_2">技术大停滞</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#-">知乎专栏-风云之声</a>
-    </li>
-    </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../link/">科普思考</a>
                     </li>
                 </ul>
                 <ul>
@@ -100,8 +100,16 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
+        
+          <li>VFS &raquo;</li>
+        
+      
+        
+          <li>Linux kernel &raquo;</li>
+        
+      
     
-    <li>科普思考</li>
+    <li>mount之旅</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -112,12 +120,24 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="_1">记录一些有意思的链接</h1>
-<h2 id="_2">技术大停滞</h2>
-<p><a href="https://zhuanlan.zhihu.com/p/24779185">https://zhuanlan.zhihu.com/p/24779185</a> </p>
-<h2 id="-">知乎专栏-风云之声</h2>
-<p>风云学会，科学素养，家国情怀，横跨文理，纵览风云 </p>
-<p><a href="https://zhuanlan.zhihu.com/fengyun">https://zhuanlan.zhihu.com/fengyun</a> </p>
+                <h1 id="mount">mount之旅</h1>
+<p>在上面介绍了VFS的总体框架之后，并且系统已经支持了一个文件系统类型之后，我们如何使用这个文件系统类型呢？这就是本章要介绍的mount。通过将一个文件系统mount到系统的一个节点上，我们就可以访问这个文件系统了。那么为什么我们一个mount命令之后就可以访问这个文件系统了呢？ 一起开始mount之旅，看看这个过程究竟发生了什么。</p>
+<h2 id="mount_1">mount命令</h2>
+<p>mount一个文件类型，通常使用的是如下格式命令：</p>
+<pre><code>mount -t type -o option,option dev dir
+</code></pre>
+
+<p><img alt="1590417523486" src="../img/1590417523486.png" /></p>
+<p>更多的可以man mount查看。</p>
+<h2 id="mount_2">mount系统调用</h2>
+<p>Linux用户态和内核态的一个主要接口就是系统调用。mount命令通过mount系统调用进入内核。我们就开始从这个系统调用入手，看看内核的具体工作。</p>
+<p>定义在fs/namespace.c文件中：</p>
+<pre><code>SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
+        char __user *, type, unsigned long, flags, void __user *, data)
+{
+    return ksys_mount(dev_name, dir_name, type, flags, data);
+}
+</code></pre>
               
             </div>
           </div>
@@ -125,10 +145,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../2020-05-23-mkdocs/" class="btn btn-neutral float-right" title="Mkdocs日志">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../link/" class="btn btn-neutral float-right" title="科普思考">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../2020-05-25-mount/" class="btn btn-neutral" title="mount之旅"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../2020-05-23-vfs/" class="btn btn-neutral" title="总体框架"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -154,10 +174,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../2020-05-25-mount/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../2020-05-23-vfs/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../2020-05-23-mkdocs/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../link/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>VFS - Bryan's Blog</title>
+  <title>总体框架 - Bryan's Blog</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,7 +18,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "VFS";
+    var mkdocs_page_name = "\u603b\u4f53\u6846\u67b6";
     var mkdocs_page_input_path = "2020-05-23-vfs.md";
     var mkdocs_page_url = null;
   </script>
@@ -53,16 +53,22 @@
                 </ul>
                 <p class="caption"><span class="caption-text">Linux kernel</span></p>
                 <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">VFS</a>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="#">VFS</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#_1">引言</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">总体框架</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">引言</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#_2">文件系统总体框架</a>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">文件系统总体框架</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#_3">相关文档</a>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">相关文档</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#_4">相关数据结构</a>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">相关数据结构</a>
     </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2020-05-25-mount/">mount之旅</a>
+                </li>
     </ul>
                     </li>
                 </ul>
@@ -99,11 +105,15 @@
     
       
         
+          <li>VFS &raquo;</li>
+        
+      
+        
           <li>Linux kernel &raquo;</li>
         
       
     
-    <li>VFS</li>
+    <li>总体框架</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -290,9 +300,6 @@ EXPORT_SYMBOL(unregister_filesystem);
 <p>4)  unregister_filesystem之后会调用synchronize_rcu，这个rcu同步在这个地方显得非常突兀，具体是什么作用呢？ 还是查看源码提交记录。最开始的提交是Nick Piggin在11年在31e6b01f4183ff419a6d1f86177cbf4662347cec这个commiter中添加的，然后在11年由Milton Milller在fff3e5ade4455a4b42a19c95dd7a167a3cb7956a这个提交中将synchronize_rcu从循环外添加到循环中。具体的原因如下可以查看这两个commit的注释，简而言之如下：
 31e6b01f4183ff419a6d1f86177cbf4662347cec: 在解注册的时候仍可继续访问d_ops和i_ops；
 fff3e5ade4455a4b42a19c95dd7a167a3cb7956a: 在循环外不安全，将其添加到循环内部。这个点还不懂，给自己留个作业吧^_^</p>
-<ul>
-<li>struct file_operations</li>
-</ul>
               
             </div>
           </div>
@@ -300,7 +307,7 @@ fff3e5ade4455a4b42a19c95dd7a167a3cb7956a: 在循环外不安全，将其添加�
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../link/" class="btn btn-neutral float-right" title="科普思考">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../2020-05-25-mount/" class="btn btn-neutral float-right" title="mount之旅">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -332,7 +339,7 @@ fff3e5ade4455a4b42a19c95dd7a167a3cb7956a: 在循环外不安全，将其添加�
         <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../link/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../2020-05-25-mount/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
